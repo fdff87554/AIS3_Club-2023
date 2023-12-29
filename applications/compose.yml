@@ -1,0 +1,44 @@
+services:
+  web:
+    build:
+        context: ./
+        dockerfile: Dockerfile
+    container_name: web
+    # hostname: web
+    restart: unless-stopped
+    ports:
+      - "80:80"
+    volumes:
+      - ./web:/var/www/html
+    depends_on:
+      - db
+    platform: linux/amd64
+
+  db:
+    image: mariadb:10.10.2
+    container_name: db
+    # hostname: db
+    restart: unless-stopped
+    volumes:
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+    environment:
+      MYSQL_DATABASE: txone_target
+      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_USER: txone
+      MYSQL_PASSWORD: tx0ne_TargEt_2023
+    ports:
+      - "3306:3306"
+    platform: linux/amd64
+
+  pma:
+    image: phpmyadmin/phpmyadmin:5.2.0
+    container_name: pma
+    hostname: pma
+    restart: unless-stopped
+    environment:
+      PMA_HOST: db
+    ports:
+      - 8080:80
+    depends_on:
+      - db
+    platform: linux/amd64
